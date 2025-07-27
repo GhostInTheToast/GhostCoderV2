@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-👻  GhostCoder (Python port)
+👻  GhostCoder (Python port) - Main Driver
 A phantom developer that haunts your terminal, powered by a local Ollama server.
 
 Feature parity with the original Bash version:
@@ -19,8 +19,6 @@ Licence: MIT – mirror of original project terms.
 from typing import List
 
 from ai_client import send_prompt
-
-# Import from modular structure
 from cli import build_parser, interactive_loop
 
 
@@ -46,5 +44,4 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n👻  The ghost fades back into the digital realm…")
-
+        print("\n👻  The ghost fades back into the digital realm…") 
