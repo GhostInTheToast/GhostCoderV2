@@ -22,6 +22,7 @@ from ai_client import send_prompt
 
 # Import from modular structure
 from cli import build_parser, interactive_loop
+from setup import setup_environment
 
 
 def main(argv: List[str] = None) -> None:
@@ -32,6 +33,12 @@ def main(argv: List[str] = None) -> None:
         argv: Command line arguments (defaults to sys.argv)
     """
     args = build_parser().parse_args(argv)
+    
+    # Handle setup option
+    if args.setup:
+        setup_environment()
+        return
+    
     prompt = " ".join(args.prompt).strip()
 
     auto_apply = not (args.print_only or args.no_apply)
