@@ -1,126 +1,221 @@
-# 👻 GhostCoder (Python Edition)
+# 👻 GhostCoder V2
 
-A phantom developer that haunts your terminal, powered by a local Ollama server. Now with **enhanced agentic behavior** to ensure you get actual code changes instead of just explanations!
+**Your AI coding assistant that actually writes code, not just explanations!**
 
-## ✨ New Features
+GhostCoder is a Python tool that connects to your local Ollama server to help you write, modify, and understand code. Unlike other AI assistants that often just explain things, GhostCoder is designed to **generate actual code** and **modify your files directly**.
 
-### 🔧 `--code` Flag
-Force the ghost to prioritize code generation over explanations:
+## 🚀 Quick Start
+
+### 1. Install Dependencies
 ```bash
-ghostcoder --code "implement a user authentication system"
+pip install requests
 ```
 
-### 🧠 Enhanced System Prompt
-The ghost now receives explicit instructions to:
-- Always provide complete code in code blocks
-- Focus on implementation over explanation
-- Show actual code changes, not just descriptions
-
-### 🎯 Improved Code Detection
-- Better keyword detection for modification requests
-- Enhanced fallback logic when no code blocks are found
-- Automatic extraction of code-like content from responses
-
-### 📝 Better Prompt Engineering
-- More explicit instructions when modifying files
-- Clearer guidance for the LLM on what type of response is expected
-- Enhanced context when file references are used
-
-## 🚀 Usage Examples
-
-### Basic Usage
+### 2. Set up Ollama (if not already done)
 ```bash
+# Install Ollama from https://ollama.ai
+# Then pull a coding model:
+ollama pull deepseek-coder:6.7b-instruct
+```
+
+### 3. Use GhostCoder
+```bash
+# Basic usage
+ghost "create a function that calculates fibonacci numbers"
+
+# Modify existing files
+ghost "add error handling to @myfile.py"
+
+# Force code generation (recommended!)
+ghost --code "implement a login system"
+```
+
+## ✨ What Makes This Special?
+
+### 🎯 **Actually Generates Code**
+Most AI assistants just explain what to do. GhostCoder **writes the actual code** for you.
+
+### 🔧 **Modifies Files Directly**
+Use `@filename` to reference files, and GhostCoder will modify them with your approval.
+
+### 🚀 **Smart Code Detection**
+Automatically detects when you want code vs explanations, with a `--code` flag for guaranteed code generation.
+
+## 📖 How to Use
+
+### Basic Commands
+
+```bash
+# Generate code
+ghost "create a web scraper"
+
 # Modify a specific file
-ghostcoder "fix the bug in @main.py"
+ghost "fix the bug in @main.py"
 
-# Force code generation
-ghostcoder --code "implement a login system"
+# Force code generation (recommended!)
+ghost --code "implement user authentication"
 
-# Auto-apply changes
-ghostcoder -y "add error handling to @utils.py"
+# Auto-apply changes without asking
+ghost -y "add logging to @utils.py"
 
-# Just explain (no code changes)
-ghostcoder --no-apply "explain how this code works"
+# Just get explanations (no code changes)
+ghost --no-apply "explain how this function works"
+```
+
+### File Modifications
+
+The `@filename` syntax lets you reference files for modification:
+
+```bash
+# GhostCoder will read the file and modify it
+ghost "add input validation to @app.py"
+
+# Multiple files at once
+ghost "update both @frontend.js and @backend.py"
 ```
 
 ### Interactive Mode
+
+Run `ghost` without arguments to enter interactive mode:
+
 ```bash
-ghostcoder
-# Enter interactive séance mode
-# Use @filename to reference files
-# Type 'exit' to quit
+ghost
+# You: add a function to calculate square roots
+# Ghost: [generates code]
+# You: modify @math.py to use this function
+# Ghost: [modifies the file]
+# You: exit
+```
+
+## 🎯 Key Features
+
+### `--code` Flag
+**The most important feature!** Forces GhostCoder to generate actual code instead of explanations:
+
+```bash
+# Without --code (might just explain)
+ghost "implement a calculator"
+
+# With --code (guaranteed to generate code)
+ghost --code "implement a calculator"
+```
+
+### File References with `@filename`
+Reference any file in your project for modification:
+
+```bash
+ghost "add error handling to @main.py"
+ghost "optimize the algorithm in @utils.py"
+ghost "fix the bug in @config.json"
+```
+
+### Auto-apply with `-y`
+Skip the confirmation prompt:
+
+```bash
+ghost -y "add comments to @script.py"
+```
+
+### Explanation Mode with `--no-apply`
+When you only want explanations, not code changes:
+
+```bash
+ghost --no-apply "explain how this sorting algorithm works"
 ```
 
 ## 🔧 Installation
 
-1. Ensure you have Python 3.8+ and Ollama running
-2. Install dependencies:
+### Prerequisites
+- Python 3.8 or higher
+- Ollama server running locally
+- A coding model (like `deepseek-coder:6.7b-instruct`)
+
+### Setup
+1. **Install Python dependencies:**
    ```bash
    pip install requests
    ```
-3. Set environment variables (optional):
+
+2. **Set up Ollama:**
+   ```bash
+   # Install from https://ollama.ai
+   ollama pull deepseek-coder:6.7b-instruct
+   ```
+
+3. **Optional: Set environment variables:**
    ```bash
    export OLLAMA_BASE_URL="http://localhost:11434"
    export OLLAMA_MODEL="deepseek-coder:6.7b-instruct"
    ```
 
-## 🎯 Key Improvements
+4. **Add to your shell (optional):**
+   ```bash
+   # Add to ~/.zshrc or ~/.bashrc
+   alias ghost="python /path/to/ghostcoder.py"
+   ```
 
-### Before
-- LLM sometimes gave explanations instead of code
-- No way to force code generation
-- Limited fallback when no code blocks found
+## 📝 Examples
 
-### After
-- **Agentic behavior**: LLM is explicitly instructed to provide code
-- **Code mode**: Guaranteed code generation attempts
-- **Smart fallbacks**: Extracts code-like content when blocks aren't found
-- **Better prompts**: More explicit instructions for the model
+### Example 1: Create New Code
+```bash
+ghost --code "create a function that validates email addresses"
+```
 
-## 🛠️ Technical Details
+**Output:**
+```python
+def validate_email(email):
+    import re
+    pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    return re.match(pattern, email) is not None
+```
 
-### Enhanced Prompt Engineering
-The system now includes a comprehensive system prompt that instructs the LLM to:
-- Always provide complete code in code blocks
-- Focus on implementation over explanation
-- Use proper code block syntax
-- Be direct and actionable
+### Example 2: Modify Existing File
+```bash
+ghost "add logging to @app.py"
+```
 
-### Improved Modification Detection
-Added more keywords to detect modification requests:
-- `write`, `generate`, `make`, `build`
-- Better logic to distinguish explanations from modifications
+**GhostCoder will:**
+1. Read your `app.py` file
+2. Show you the proposed changes
+3. Ask for confirmation
+4. Apply the changes if you approve
 
-### Fallback Mechanisms
-When no code blocks are found:
-1. Attempts to extract code-like patterns
-2. Provides helpful suggestions
-3. Shows potential code content when possible
+### Example 3: Interactive Session
+```bash
+ghost
+# You: create a simple web server
+# Ghost: [generates Flask server code]
+# You: add error handling to it
+# Ghost: [modifies the code with error handling]
+# You: exit
+```
 
-### Usage Tips
-- Use `--code` when you want guaranteed code generation
-- Use `@filename` to reference specific files for modification
-- Use `--no-apply` when you only want explanations
+## 🛠️ Troubleshooting
 
-## 📋 Requirements
+### "Cannot reach the spectral realm"
+- Make sure Ollama is running: `ollama serve`
+- Check the URL: `curl http://localhost:11434`
 
-- Python ≥3.8
-- `requests` library
-- Running Ollama server
-- `colordiff` (optional, for colored diffs)
+### "No code blocks detected"
+- Use the `--code` flag: `ghost --code "your request"`
+- Be more specific: `ghost --code "write a function that..."`
+
+### "File not found"
+- Make sure the file exists in your current directory
+- Use the full path if needed: `ghost "modify @/path/to/file.py"`
 
 ## 🎭 The Ghost's Personality
 
-GhostCoder maintains its spooky theme while being more practical:
-- 👻 Spectral changes and manifestations
-- 🔮 Interactive séance mode
-- 💀 Banish the ghost with 'exit'
-- ✨ Magical code transformations
+GhostCoder maintains a fun, spooky theme:
+- 👻 "Spectral changes" = file modifications
+- 🔮 "Interactive séance" = interactive mode
+- 💀 "Banish the ghost" = exit command
+- ✨ "Manifested changes" = successful file updates
 
 ## 🤝 Contributing
 
-Feel free to contribute improvements to make the ghost even more helpful!
+Feel free to contribute improvements! The ghost is always learning new tricks.
 
 ---
 
-*"The best code is the code that writes itself... with a little help from the ghost!"* 👻 
+**Happy coding with your spectral assistant!** 👻✨ 
