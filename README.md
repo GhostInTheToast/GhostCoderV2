@@ -18,10 +18,35 @@ pip install requests
 ollama pull deepseek-coder:6.7b-instruct
 ```
 
-### 3. Use GhostCoder
+### 3. Set up Environment Variables
 ```bash
-# Basic usage
+# Add these to your ~/.zshrc or ~/.bashrc
+export OLLAMA_BASE_URL="http://localhost:11434"
+export OLLAMA_MODEL="deepseek-coder:6.7b-instruct"
+
+# Reload your shell
+source ~/.zshrc  # or source ~/.bashrc
+```
+
+### 4. Create an Alias (Optional but Recommended)
+```bash
+# Add this to your ~/.zshrc or ~/.bashrc
+alias ghost="python /path/to/ghostcoder.py"
+
+# Replace /path/to/ with the actual path to your ghostcoder.py file
+# For example: alias ghost="python ~/Projects/ghostcoderV0.5/ghostcoder.py"
+
+# Reload your shell
+source ~/.zshrc  # or source ~/.bashrc
+```
+
+### 5. Use GhostCoder
+```bash
+# Basic usage (if you set up the alias)
 ghost "create a function that calculates fibonacci numbers"
+
+# Or run directly
+python ghostcoder.py "create a function that calculates fibonacci numbers"
 
 # Modify existing files
 ghost "add error handling to @myfile.py"
@@ -130,29 +155,69 @@ ghost --no-apply "explain how this sorting algorithm works"
 - Ollama server running locally
 - A coding model (like `deepseek-coder:6.7b-instruct`)
 
-### Setup
+### Detailed Setup
+
 1. **Install Python dependencies:**
    ```bash
    pip install requests
    ```
 
-2. **Set up Ollama:**
+2. **Install and set up Ollama:**
    ```bash
    # Install from https://ollama.ai
+   # Start Ollama server
+   ollama serve
+   
+   # Pull a coding model
    ollama pull deepseek-coder:6.7b-instruct
    ```
 
-3. **Optional: Set environment variables:**
+3. **Download GhostCoder:**
    ```bash
-   export OLLAMA_BASE_URL="http://localhost:11434"
-   export OLLAMA_MODEL="deepseek-coder:6.7b-instruct"
+   # Clone the repository
+   git clone https://github.com/GhostInTheToast/GhostCoderV2.git
+   cd GhostCoderV2
+   
+   # Or download the ghostcoder.py file directly
    ```
 
-4. **Add to your shell (optional):**
+4. **Set up environment variables:**
    ```bash
    # Add to ~/.zshrc or ~/.bashrc
-   alias ghost="python /path/to/ghostcoder.py"
+   export OLLAMA_BASE_URL="http://localhost:11434"
+   export OLLAMA_MODEL="deepseek-coder:6.7b-instruct"
+   
+   # Reload your shell
+   source ~/.zshrc  # or source ~/.bashrc
    ```
+
+5. **Create an alias (recommended):**
+   ```bash
+   # Add to ~/.zshrc or ~/.bashrc
+   alias ghost="python /full/path/to/ghostcoder.py"
+   
+   # Example:
+   # alias ghost="python ~/Projects/ghostcoderV0.5/ghostcoder.py"
+   
+   # Reload your shell
+   source ~/.zshrc  # or source ~/.bashrc
+   ```
+
+### Verify Installation
+```bash
+# Test if Ollama is running
+curl http://localhost:11434
+
+# Test GhostCoder
+ghost --help
+```
+
+### Default Configuration
+If you don't set environment variables, GhostCoder uses these defaults:
+- `OLLAMA_BASE_URL`: `http://localhost:11434`
+- `OLLAMA_MODEL`: `deepseek-coder:6.7b-instruct`
+
+You can override these by setting the environment variables or by modifying the defaults in `ghostcoder.py`.
 
 ## 📝 Examples
 
