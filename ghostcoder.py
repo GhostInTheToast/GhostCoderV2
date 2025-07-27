@@ -5,10 +5,10 @@ A phantom developer that haunts your terminal, powered by a local Ollama server.
 
 Feature parity with the original Bash version:
   • Uses OLLAMA_BASE_URL / OLLAMA_MODEL env‑vars
-  • Options: -p/--print, -y/--yes, --no-apply, -h/--help
+  • Options: -p/--print, --skip-confirm, --no-apply, -h/--help
   • @filename substitution with full file‑content in prompt
   • Distinguishes modification vs. explanation requests
-  • Shows diffs and asks confirmation (unless -y or --no-apply)
+  • Shows diffs and asks confirmation (unless --skip-confirm or --no-apply)
   • Interactive séance mode when no prompt is given
   • Automatically applies code blocks returned by the model
 

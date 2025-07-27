@@ -172,7 +172,7 @@ ghost "fix the bug in @main.py"
 ghost --code "implement user authentication"
 
 # Auto-apply changes without asking
-ghost -y "add logging to @utils.py"
+ghost --skip-confirm "add logging to @utils.py"
 
 # Just get explanations (no code changes)
 ghost --no-apply "explain how this function works"
@@ -225,11 +225,11 @@ ghost "optimize the algorithm in @utils.py"
 ghost "fix the bug in @config.json"
 ```
 
-### Auto-apply with `-y`
+### Auto-apply with `--skip-confirm`
 Skip the confirmation prompt:
 
 ```bash
-ghost -y "add comments to @script.py"
+ghost --skip-confirm "add comments to @script.py"
 ```
 
 ### Explanation Mode with `--no-apply`

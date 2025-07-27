@@ -82,7 +82,7 @@ python main.py
 python main.py --code "implement a login system"
 
 # Auto-apply changes
-python main.py -y "add error handling to @utils.py"
+python main.py --skip-confirm "add error handling to @utils.py"
 
 # Print only (no file changes)
 python main.py --no-apply "explain how this code works"
