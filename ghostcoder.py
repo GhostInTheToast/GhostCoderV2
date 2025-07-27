@@ -310,7 +310,7 @@ def build_parser() -> argparse.ArgumentParser:
         epilog="""
 Examples:
   ghostcoder "fix the bug in @main.py"
-  ghostcoder --force-code "implement a login system"
+  ghostcoder --code "implement a login system"
   ghostcoder -y "add error handling to @utils.py"
   ghostcoder --no-apply "explain how this code works"
         """,
@@ -318,7 +318,7 @@ Examples:
     p.add_argument("-p", "--print", dest="print_only", action="store_true")
     p.add_argument("-y", "--yes", dest="auto_yes", action="store_true")
     p.add_argument("--no-apply", dest="no_apply", action="store_true")
-    p.add_argument("--force-code", dest="force_code", action="store_true",
+    p.add_argument("--code", dest="force_code", action="store_true",
                    help="Force the ghost to return code changes instead of explanations")
     p.add_argument("-h", "--help", action="help")
     p.add_argument("prompt", nargs=argparse.REMAINDER, help="Prompt for the ghost")

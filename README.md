@@ -4,10 +4,10 @@ A phantom developer that haunts your terminal, powered by a local Ollama server.
 
 ## ✨ New Features
 
-### 🔧 `--force-code` Flag
+### 🔧 `--code` Flag
 Force the ghost to prioritize code generation over explanations:
 ```bash
-ghostcoder --force-code "implement a user authentication system"
+ghostcoder --code "implement a user authentication system"
 ```
 
 ### 🧠 Enhanced System Prompt
@@ -34,7 +34,7 @@ The ghost now receives explicit instructions to:
 ghostcoder "fix the bug in @main.py"
 
 # Force code generation
-ghostcoder --force-code "implement a login system"
+ghostcoder --code "implement a login system"
 
 # Auto-apply changes
 ghostcoder -y "add error handling to @utils.py"
@@ -73,7 +73,7 @@ ghostcoder
 
 ### After
 - **Agentic behavior**: LLM is explicitly instructed to provide code
-- **Force-code mode**: Guaranteed code generation attempts
+- **Code mode**: Guaranteed code generation attempts
 - **Smart fallbacks**: Extracts code-like content when blocks aren't found
 - **Better prompts**: More explicit instructions for the model
 
@@ -96,6 +96,11 @@ When no code blocks are found:
 1. Attempts to extract code-like patterns
 2. Provides helpful suggestions
 3. Shows potential code content when possible
+
+### Usage Tips
+- Use `--code` when you want guaranteed code generation
+- Use `@filename` to reference specific files for modification
+- Use `--no-apply` when you only want explanations
 
 ## 📋 Requirements
 
