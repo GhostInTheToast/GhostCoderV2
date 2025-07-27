@@ -6,19 +6,36 @@ GhostCoder is a Python tool that connects to your local Ollama server to help yo
 
 ## 🚀 Quick Start
 
-### 1. Install Dependencies
+### Option 1: Automatic Setup (Recommended)
+```bash
+# 1. Install dependencies
+pip install requests
+
+# 2. Run the setup wizard
+python ghostcoder.py --setup
+
+# The wizard will automatically:
+# - Detect your shell (zsh/bash)
+# - Configure environment variables
+# - Create ghost and ghostcoder aliases
+# - Add everything to your shell RC file
+```
+
+### Option 2: Manual Setup
+
+#### 1. Install Dependencies
 ```bash
 pip install requests
 ```
 
-### 2. Set up Ollama (if not already done)
+#### 2. Set up Ollama (if not already done)
 ```bash
 # Install Ollama from https://ollama.ai
 # Then pull a coding model:
 ollama pull deepseek-coder:6.7b-instruct
 ```
 
-### 3. Set up Environment Variables
+#### 3. Set up Environment Variables
 ```bash
 # Add these to your ~/.zshrc or ~/.bashrc
 export OLLAMA_BASE_URL="http://localhost:11434"
@@ -28,7 +45,7 @@ export OLLAMA_MODEL="deepseek-coder:6.7b-instruct"
 source ~/.zshrc  # or source ~/.bashrc
 ```
 
-### 4. Create an Alias (Optional but Recommended)
+#### 4. Create an Alias (Optional but Recommended)
 ```bash
 # Add this to your ~/.zshrc or ~/.bashrc
 alias ghost="python /path/to/ghostcoder.py"
@@ -40,7 +57,7 @@ alias ghost="python /path/to/ghostcoder.py"
 source ~/.zshrc  # or source ~/.bashrc
 ```
 
-### 5. Use GhostCoder
+#### 5. Use GhostCoder
 ```bash
 # Basic usage (if you set up the alias)
 ghost "create a function that calculates fibonacci numbers"
@@ -53,6 +70,77 @@ ghost "add error handling to @myfile.py"
 
 # Force code generation (recommended!)
 ghost --code "implement a login system"
+```
+
+## 🔧 Setup Wizard
+
+GhostCoder includes an interactive setup wizard that automates the configuration process:
+
+### Running the Setup Wizard
+```bash
+python ghostcoder.py --setup
+# or
+ghost --setup
+# or
+ghostcoder --setup
+```
+
+### What the Setup Wizard Does
+1. **Detects your shell** (zsh or bash)
+2. **Configures environment variables**:
+   - `OLLAMA_BASE_URL` (default: `http://localhost:11434`)
+   - `OLLAMA_MODEL` (default: `deepseek-coder:6.7b-instruct`)
+3. **Creates aliases**:
+   - `ghost` → `python /path/to/ghostcoder.py`
+   - `ghostcoder` → `ghost`
+4. **Updates your shell RC file** (`.zshrc` or `.bashrc`)
+5. **Provides next steps** for testing the setup
+
+### Setup Wizard Features
+- **Interactive prompts** for customizing settings
+- **Smart defaults** based on current environment
+- **Duplicate detection** (won't add the same config twice)
+- **Confirmation prompts** before making changes
+- **Clear instructions** for next steps
+
+### Example Setup Session
+```bash
+$ python ghostcoder.py --setup
+👻  GhostCoder Setup Wizard
+==================================================
+Detected shell: zsh
+RC file: /Users/username/.zshrc
+GhostCoder path: /Users/username/Projects/GhostCoderV2/ghostcoder.py
+
+🔧  Environment Variables Setup
+------------------------------
+Current OLLAMA_BASE_URL: http://localhost:11434
+Current OLLAMA_MODEL: deepseek-coder:6.7b-instruct
+
+Enter OLLAMA_BASE_URL (press Enter for default 'http://localhost:11434'): 
+Enter OLLAMA_MODEL (press Enter for default 'deepseek-coder:6.7b-instruct'): 
+
+📝  Configuration Summary
+-------------------------
+Shell: zsh
+RC file: /Users/username/.zshrc
+Base URL: http://localhost:11434
+Model: deepseek-coder:6.7b-instruct
+Alias: ghost -> python /Users/username/Projects/GhostCoderV2/ghostcoder.py
+Alias: ghostcoder -> ghost
+
+Apply these changes? [y/N]: y
+
+🔧  Applying changes...
+✅  Added environment variables to /Users/username/.zshrc
+✅  Added aliases to /Users/username/.zshrc
+
+🎉  Setup complete!
+
+📋  Next steps:
+1. Reload your shell: source /Users/username/.zshrc
+2. Test the setup: ghost --help
+3. Start coding with GhostCoder!
 ```
 
 ## ✨ What Makes This Special?
@@ -71,6 +159,9 @@ Automatically detects when you want code vs explanations, with a `--code` flag f
 ### Basic Commands
 
 ```bash
+# Run setup wizard (first time setup)
+ghost --setup
+
 # Generate code
 ghost "create a web scraper"
 
@@ -156,6 +247,26 @@ ghost --no-apply "explain how this sorting algorithm works"
 - A coding model (like `deepseek-coder:6.7b-instruct`)
 
 ### Detailed Setup
+
+#### Option 1: Automatic Setup (Recommended)
+```bash
+# 1. Install Python dependencies
+pip install requests
+
+# 2. Install and set up Ollama
+# Install from https://ollama.ai
+# Start Ollama server: ollama serve
+# Pull a coding model: ollama pull deepseek-coder:6.7b-instruct
+
+# 3. Download GhostCoder
+git clone https://github.com/GhostInTheToast/GhostCoderV2.git
+cd GhostCoderV2
+
+# 4. Run the setup wizard
+python ghostcoder.py --setup
+```
+
+#### Option 2: Manual Setup
 
 1. **Install Python dependencies:**
    ```bash
