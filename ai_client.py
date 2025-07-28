@@ -15,11 +15,12 @@ except ImportError:
     sys.exit("❌  'requests' not found – run: pip install requests")
 
 from config import BASE_URL, CODE_BLOCK_RE, FILE_REF_RE, MODEL, SYSTEM_PROMPT
+from context_detector import detect_context_files, format_context_summary
 from file_processor import (
-    extract_code_for_file, 
+    extract_code_for_file,
+    has_multiple_file_references,
     process_file_references,
     process_multiple_file_references,
-    has_multiple_file_references
 )
 from utils import is_modification_request
 
