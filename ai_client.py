@@ -15,7 +15,12 @@ except ImportError:
     sys.exit("❌  'requests' not found – run: pip install requests")
 
 from config import BASE_URL, CODE_BLOCK_RE, FILE_REF_RE, MODEL, SYSTEM_PROMPT
-from file_processor import extract_code_for_file, process_file_references
+from file_processor import (
+    extract_code_for_file, 
+    process_file_references,
+    process_multiple_file_references,
+    has_multiple_file_references
+)
 from utils import is_modification_request
 
 
@@ -29,6 +34,13 @@ def send_prompt(prompt: str, auto_apply: bool, auto_yes: bool, force_code: bool 
         auto_yes: Whether to automatically confirm changes
         force_code: Whether to force code generation mode
     """
+    # Check if this is a multiple file request
+    if has_multiple_file_references(prompt):
+        print("👻  Detected multiple file references - processing each file separately...")
+        process_multiple_files(prompt, auto_apply, auto_yes, force_code)
+        return
+    
+    # Single file or no file reference - use original logic
     processed_prompt, has_refs, is_mod = process_file_references(prompt, force_code)
     
     # Construct the full prompt with system instructions
@@ -82,6 +94,84 @@ def send_prompt(prompt: str, auto_apply: bool, auto_yes: bool, force_code: bool 
         elif force_code:
             print("\n👻  No code blocks found despite force-code mode.")
             print("💡  Try being more specific about what code you want generated.")
+
+
+def process_multiple_files(prompt: str, auto_apply: bool, auto_yes: bool, force_code: bool = False) -> None:
+    """
+    Process multiple files by sending individual requests for each file.
+    
+    Args:
+        prompt: The original user prompt
+        auto_apply: Whether to automatically apply code changes
+        auto_yes: Whether to automatically confirm changes
+        force_code: Whether to force code generation mode
+    """
+    file_tasks = process_multiple_file_references(prompt, force_code)
+    
+    if not file_tasks:
+        print("👻  No valid files found to process.")
+        return
+    
+    print(f"👻  Processing {len(file_tasks)} file(s)...")
+    
+    for i, (file_path, original_prompt, processed_prompt) in enumerate(file_tasks, 1):
+        print(f"\n📁  Processing file {i}/{len(file_tasks)}: {file_path.name}")
+        print("-" * 50)
+        
+        # Construct the full prompt with system instructions
+        full_prompt = f"{SYSTEM_PROMPT}\n\nUser request: {processed_prompt}"
+        
+        try:
+            r = requests.post(
+                f"{BASE_URL}/api/generate",
+                json={"model": MODEL, "prompt": full_prompt, "stream": False},
+                timeout=180,
+            )
+            r.raise_for_status()
+        except requests.RequestException as exc:
+            print(f"❌  Cannot reach the spectral realm for {file_path.name}: {exc}")
+            continue
+
+        try:
+            ai_response = r.json().get("response")
+        except ValueError as exc:
+            print(f"❌  Invalid response for {file_path.name}: {exc}")
+            continue
+
+        if not ai_response:
+            print(f"❌  Empty response for {file_path.name}")
+            continue
+
+        print(ai_response)
+        
+        # Apply changes for this specific file
+        if auto_apply:
+            apply_single_file_changes(ai_response, file_path, original_prompt, auto_yes, force_code)
+
+
+def apply_single_file_changes(response: str, file_path: Path, prompt: str, auto_yes: bool, force_code: bool = False) -> None:
+    """
+    Apply changes to a single file from the AI response.
+    
+    Args:
+        response: The AI model's response
+        file_path: Path to the file to modify
+        prompt: The original user prompt
+        auto_yes: Whether to automatically confirm changes
+        force_code: Whether to force code generation mode
+    """
+    if not (is_modification_request(prompt) or force_code):
+        return
+
+    code = extract_code_for_file(response, file_path.name)
+    if code:
+        if show_diff_and_confirm(file_path, code, auto_yes):
+            file_path.write_text(code)
+            print(f"✅  GhostCoder manifested changes to {file_path}")
+        else:
+            print(f"❌  Changes to {file_path.name} were cancelled")
+    else:
+        print(f"👻  No spectral code detected for {file_path.name}")
 
 
 def apply_code_changes(response: str, prompt: str, auto_yes: bool, force_code: bool = False) -> None:
