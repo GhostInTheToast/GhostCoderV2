@@ -229,13 +229,56 @@ def apply_single_file_changes(response: str, file_path: Path, prompt: str, auto_
 
     code = extract_code_for_file(response, file_path.name)
     if code:
-        if show_diff_and_confirm(file_path, code, auto_yes):
-            file_path.write_text(code)
+        # Use intelligent merging instead of complete replacement
+        merged_code = intelligently_merge_changes(file_path, code, prompt)
+        if show_diff_and_confirm(file_path, merged_code, auto_yes):
+            file_path.write_text(merged_code)
             print(f"✅  GhostCoder manifested changes to {file_path}")
         else:
             print(f"❌  Changes to {file_path.name} were cancelled")
     else:
         print(f"👻  No spectral code detected for {file_path.name}")
+
+
+def intelligently_merge_changes(file_path: Path, new_code: str, prompt: str) -> str:
+    """
+    Intelligently merge new code into existing file without replacing everything.
+    
+    Args:
+        file_path: Path to the existing file
+        new_code: New code to add/modify
+        prompt: Original user prompt for context
+        
+    Returns:
+        Merged file content
+    """
+    if not file_path.exists():
+        return new_code
+    
+    try:
+        existing_content = file_path.read_text()
+    except Exception:
+        return new_code
+    
+    # If the new code is very small (likely just a function), add it to the end
+    if len(new_code.strip()) < 500 and "def " in new_code:
+        # Add new function at the end of the file
+        if existing_content.strip().endswith('\n'):
+            return existing_content + new_code
+        else:
+            return existing_content + '\n\n' + new_code
+    
+    # If the new code is larger, it might be a complete replacement
+    # But let's be conservative and only replace if it's clearly a complete file
+    if len(new_code) > len(existing_content) * 0.8:
+        # This looks like a complete replacement - be very conservative
+        print(f"⚠️   Large code block detected for {file_path.name}. This might replace the entire file.")
+        print(f"💡  Consider using explicit @{file_path.name} reference for safer modifications.")
+        return existing_content  # Don't replace, preserve existing
+    
+    # For medium-sized changes, try to merge intelligently
+    # This is a simple approach - in practice you might want more sophisticated merging
+    return existing_content + '\n\n# Added by GhostCoder:\n' + new_code
 
 
 def apply_code_changes(response: str, prompt: str, auto_yes: bool, force_code: bool = False) -> None:

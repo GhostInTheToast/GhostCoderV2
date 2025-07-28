@@ -58,14 +58,17 @@ def process_file_references(prompt: str, force_code: bool = False) -> Tuple[str,
     # Enhanced prompt engineering for more agentic behavior
     if has_refs and is_mod:
         processed += (
-            "\n\nCRITICAL: You are being asked to modify code. You MUST respond with the complete updated file content in a code block. "
-            "Do not just explain what to change - show the actual code with all changes applied. "
-            "Provide the entire file content, not just the modified parts."
+            "\n\nCRITICAL: You are being asked to modify code. DO NOT REPLACE THE ENTIRE FILE. "
+            "Only show the specific changes needed. If adding a new function, show ONLY the new function. "
+            "If modifying an existing function, show ONLY the modified function. "
+            "Preserve ALL existing imports, structure, and other functions. "
+            "Use code blocks to show ONLY the additions or changes, not the entire file."
         )
     elif is_mod and not has_refs:
         processed += (
-            "\n\nIMPORTANT: This is a code modification request. Please provide the complete implementation in code blocks. "
-            "Show the actual code, not just explanations of what to do."
+            "\n\nIMPORTANT: This is a code modification request. DO NOT REPLACE ENTIRE FILES. "
+            "Show ONLY the specific additions or changes needed. "
+            "Preserve ALL existing code structure and only add what's specifically requested."
         )
     
     return processed, has_refs, is_mod
@@ -89,6 +92,12 @@ def extract_code_for_file(response: str, filename: str | None = None) -> str:
         return ""
 
     if filename is None:
+        # For smart context detection, be more conservative
+        # Look for the smallest, most focused code block
+        if len(blocks) > 1:
+            # Prefer smaller blocks (likely function definitions) over large ones
+            blocks.sort(key=len)
+            return blocks[0].strip()
         return blocks[0].strip()
 
     # Look for a block that mentions the filename in the preceding few lines.
@@ -159,3 +168,15 @@ def has_multiple_file_references(prompt: str) -> bool:
     """
     file_references = FILE_REF_RE.findall(prompt)
     return len(file_references) > 1 
+
+def validate_input(string: str) -> bool:
+    """
+    Validate the input by checking if it's not an empty string.
+    
+    Args:
+        string: The input string to check
+        
+    Returns:
+        True if the string is not empty, False otherwise
+    """
+    return bool(string)  # converts to boolean depending on emptiness of string
