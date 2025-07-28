@@ -168,11 +168,17 @@ ghost "create a web scraper"
 # Modify a specific file
 ghost "fix the bug in @main.py"
 
+# Modify multiple files (NEW!)
+ghost "add logging to @main.py @utils.py @config.py"
+
 # Force code generation (recommended!)
 ghost --code "implement user authentication"
 
 # Auto-apply changes without asking
 ghost --skip-confirm "add logging to @utils.py"
+
+# Auto-apply to multiple files
+ghost --skip-confirm "add error handling to @auth.py @user.py @middleware.py"
 
 # Just get explanations (no code changes)
 ghost --no-apply "explain how this function works"
@@ -186,9 +192,18 @@ The `@filename` syntax lets you reference files for modification:
 # GhostCoder will read the file and modify it
 ghost "add input validation to @app.py"
 
-# Multiple files at once
-ghost "update both @frontend.js and @backend.py"
+# Multiple files at once (NEW!)
+ghost "add logging to @main.py @utils.py @config.py"
+ghost "update error handling in @auth.py @user.py @middleware.py"
+ghost "add docstrings to @models.py @views.py @forms.py"
 ```
+
+**Multifile Processing**: When you reference multiple files with `@filename`, GhostCoder processes each file individually:
+- ✅ Each file gets its own focused AI request
+- ✅ Individual diffs and confirmations for each file
+- ✅ Progress tracking (Processing file 1/3, 2/3, etc.)
+- ✅ Graceful error handling (skips nonexistent files)
+- ✅ Backward compatible with single file references
 
 ### Interactive Mode
 
@@ -220,9 +235,16 @@ ghost --code "implement a calculator"
 Reference any file in your project for modification:
 
 ```bash
+# Single file modifications
 ghost "add error handling to @main.py"
 ghost "optimize the algorithm in @utils.py"
 ghost "fix the bug in @config.json"
+
+# Multiple file modifications (NEW!)
+ghost "add logging to @main.py @utils.py @config.py"
+ghost "update imports in @models.py @views.py @forms.py"
+ghost "add type hints to @auth.py @user.py @middleware.py"
+ghost "refactor error handling across @app.py @lib.py @helpers.py"
 ```
 
 ### Auto-apply with `--skip-confirm`
@@ -231,6 +253,30 @@ Skip the confirmation prompt:
 ```bash
 ghost --skip-confirm "add comments to @script.py"
 ```
+
+### Multifile Processing (NEW!)
+Process multiple files with a single command:
+
+```bash
+# Add the same feature to multiple files
+ghost "add logging to @main.py @utils.py @config.py"
+
+# Update related files together
+ghost "add error handling to @auth.py @user.py @middleware.py"
+
+# Apply consistent changes across files
+ghost "add docstrings to @models.py @views.py @forms.py"
+
+# Skip confirmation for multiple files
+ghost --skip-confirm "add type hints to @app.py @lib.py @helpers.py"
+```
+
+**How it works:**
+- Each file is processed individually with a focused prompt
+- Progress is shown (Processing file 1/3, 2/3, etc.)
+- Individual diffs and confirmations for each file
+- Graceful error handling (skips nonexistent files)
+- Fully backward compatible with single file references
 
 ### Explanation Mode with `--no-apply`
 When you only want explanations, not code changes:

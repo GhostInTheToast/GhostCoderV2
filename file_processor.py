@@ -106,4 +106,56 @@ def extract_code_for_file(response: str, filename: str | None = None) -> str:
                         code_lines.append(lines[k])
                     break
     # Fallback: heuristically return first code block
-    return blocks[0].strip() 
+    return blocks[0].strip()
+
+
+def process_multiple_file_references(prompt: str, force_code: bool = False) -> list[tuple[Path, str, str]]:
+    """
+    Process multiple @filename references and return individual prompts for each file.
+    
+    Args:
+        prompt: The original prompt text
+        force_code: Whether to force code generation mode
+        
+    Returns:
+        List of tuples: [(file_path, original_prompt, processed_prompt), ...]
+        If no file references found, returns empty list
+    """
+    file_references = FILE_REF_RE.findall(prompt)
+    if not file_references:
+        return []
+    
+    results = []
+    is_mod = is_modification_request(prompt) or force_code
+    
+    for filename in file_references:
+        path = Path(filename)
+        if not path.exists():
+            print(f"⚠️   File '{filename}' not found, skipping...")
+            continue
+            
+        # Create a focused prompt for this specific file
+        # Remove all @filename references and replace with just this one
+        clean_prompt = FILE_REF_RE.sub('', prompt).strip()
+        file_prompt = f"{clean_prompt} in the file @{filename}"
+        
+        # Process this single file reference
+        processed_prompt, has_refs, _ = process_file_references(file_prompt, force_code)
+        
+        results.append((path, prompt, processed_prompt))
+    
+    return results
+
+
+def has_multiple_file_references(prompt: str) -> bool:
+    """
+    Check if the prompt contains multiple @filename references.
+    
+    Args:
+        prompt: The prompt text to check
+        
+    Returns:
+        True if multiple file references found, False otherwise
+    """
+    file_references = FILE_REF_RE.findall(prompt)
+    return len(file_references) > 1 
