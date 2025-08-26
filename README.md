@@ -4,15 +4,55 @@
 
 GhostCoder is a Python tool that connects to your local Ollama server to help you write, modify, and understand code. Unlike other AI assistants that often just explain things, GhostCoder is designed to **generate actual code** and **modify your files directly**.
 
+## ⚡ Quick Setup (3 steps)
+```bash
+# 1. Create virtual environment
+python3 -m venv venv && source venv/bin/activate
+
+# 2. Install dependencies  
+pip3 install -r requirements.txt
+
+# 3. Run setup wizard
+python ghostcoder.py --setup
+```
+
+**💡 Pro tip**: Always activate your virtual environment (`source venv/bin/activate`) before using GhostCoder!
+
 ## 🚀 Quick Start
 
-### Option 1: Automatic Setup (Recommended)
-```bash
-# 1. Install dependencies
-pip install requests
+### Prerequisites
+- Python 3.8 or higher
+- Ollama installed and running (see [Ollama Setup](#ollama-setup) below)
 
-# 2. Run the setup wizard
-python ghostcoder.py --setup
+### Option 1: Automatic Setup (Recommended)
+
+#### 1. Create and Activate Virtual Environment
+```bash
+# Create a virtual environment
+python3 -m venv venv
+
+# Activate it (choose your OS)
+# On macOS/Linux:
+source venv/bin/activate
+
+# On Windows:
+# venv\Scripts\activate
+
+# Your prompt should now show (venv) at the beginning
+```
+
+#### 2. Install Dependencies
+```bash
+# Make sure your virtual environment is activated
+pip3 install -r requirements.txt
+
+# Or install manually:
+pip3 install requests
+```
+
+#### 3. Run the Setup Wizard
+```bash
+python3 ghostcoder.py --setup
 
 # The wizard will automatically:
 # - Detect your shell (zsh/bash)
@@ -23,9 +63,26 @@ python ghostcoder.py --setup
 
 ### Option 2: Manual Setup
 
-#### 1. Install Dependencies
+#### 1. Create and Activate Virtual Environment
 ```bash
-pip install requests
+# Create a virtual environment
+python3 -m venv venv
+
+# Activate it (choose your OS)
+# On macOS/Linux:
+source venv/bin/activate
+
+# On Windows:
+# venv\Scripts\activate
+```
+
+#### 2. Install Dependencies
+```bash
+# Make sure your virtual environment is activated
+pip3 install -r requirements.txt
+
+# Or install manually:
+pip3 install requests
 ```
 
 #### 2. Set up Ollama (if not already done)
@@ -70,6 +127,30 @@ ghost "add error handling to @myfile.py"
 
 # Force code generation (recommended!)
 ghost --code "implement a login system"
+```
+
+## 🐳 Ollama Setup
+
+### Install Ollama
+1. **Download and install** from [https://ollama.ai](https://ollama.ai)
+2. **Start Ollama** (it will run as a service)
+3. **Pull a coding model**:
+   ```bash
+   # Recommended model for coding
+   ollama pull deepseek-coder:6.7b-instruct
+   
+   # Alternative models
+   ollama pull codellama:7b-instruct
+   ollama pull llama2:7b-chat
+   ```
+
+### Verify Ollama is Running
+```bash
+# Check if Ollama is responding
+curl http://localhost:11434/api/tags
+
+# Or visit http://localhost:11434 in your browser
+# You should see the Ollama API documentation
 ```
 
 ## 🔧 Setup Wizard
@@ -155,6 +236,16 @@ Use `@filename` to reference files, and GhostCoder will modify them with your ap
 Automatically detects when you want code vs explanations, with a `--code` flag for guaranteed code generation.
 
 ## 📖 How to Use
+
+### ⚠️ Important: Activate Your Virtual Environment First
+```bash
+# Always activate your virtual environment before using GhostCoder
+source venv/bin/activate  # On macOS/Linux
+# venv\Scripts\activate   # On Windows
+
+# You should see (venv) in your prompt
+(venv) user@computer:~/Projects/GhostCoderV2$
+```
 
 ### Basic Commands
 
@@ -414,17 +505,66 @@ ghost
 
 ## 🛠️ Troubleshooting
 
-### "Cannot reach the spectral realm"
+### Common Setup Issues
+
+#### "python: command not found"
+- Use `python3` instead of `python` on macOS/Linux
+- Make sure Python 3.8+ is installed: `python3 --version`
+
+#### "pip: command not found"
+- Use `pip3` instead of `pip` on macOS/Linux
+- Or install pip: `python3 -m ensurepip --upgrade`
+
+#### "externally-managed-environment" Error
+- This is normal on modern macOS/Linux systems
+- **Solution**: Always use a virtual environment:
+  ```bash
+  python3 -m venv venv
+  source venv/bin/activate  # On macOS/Linux
+  pip install -r requirements.txt
+  ```
+
+#### "ModuleNotFoundError: No module named 'requests'"
+- Make sure your virtual environment is activated (you should see `(venv)` in your prompt)
+- Install dependencies: `pip install -r requirements.txt`
+
+#### "Permission denied" when installing packages
+- Don't use `sudo pip install` - this can break your system Python
+- **Solution**: Use a virtual environment (see above)
+
+### Ollama Issues
+
+#### "Cannot reach the spectral realm"
 - Make sure Ollama is running: `ollama serve`
 - Check the URL: `curl http://localhost:11434`
+- Verify Ollama is installed: `ollama --version`
 
-### "No code blocks detected"
+#### "Connection refused" or "Connection timeout"
+- Check if Ollama is running on the correct port (default: 11434)
+- Try restarting Ollama: `ollama serve`
+- Check firewall settings
+
+### Code Generation Issues
+
+#### "No code blocks detected"
 - Use the `--code` flag: `ghost --code "your request"`
 - Be more specific: `ghost --code "write a function that..."`
 
-### "File not found"
+#### "File not found"
 - Make sure the file exists in your current directory
 - Use the full path if needed: `ghost "modify @/path/to/file.py"`
+
+### Virtual Environment Best Practices
+- **Always activate** your virtual environment before running GhostCoder
+- **Never install packages globally** with pip
+- **Keep your virtual environment** in the project directory
+- **Recreate the environment** if you encounter dependency conflicts:
+  ```bash
+  rm -rf venv
+  python3 -m venv venv
+  source venv/bin/activate
+  pip install -r requirements.txt
+  ```
 
 ## 🎭 The Ghost's Personality
 
