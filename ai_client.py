@@ -15,11 +15,12 @@ except ImportError:
     sys.exit("❌  'requests' not found – run: pip install requests")
 
 from config import BASE_URL, CODE_BLOCK_RE, FILE_REF_RE, MODEL, SYSTEM_PROMPT
+from context_detector import detect_context_files, format_context_summary
 from file_processor import (
-    extract_code_for_file, 
+    extract_code_for_file,
+    has_multiple_file_references,
     process_file_references,
     process_multiple_file_references,
-    has_multiple_file_references
 )
 from utils import is_modification_request
 
@@ -40,8 +41,17 @@ def send_prompt(prompt: str, auto_apply: bool, auto_yes: bool, force_code: bool 
         process_multiple_files(prompt, auto_apply, auto_yes, force_code)
         return
     
-    # Single file or no file reference - use original logic
+    # Check for smart context detection (no explicit file references but modification request)
     processed_prompt, has_refs, is_mod = process_file_references(prompt, force_code)
+    
+    if not has_refs and is_mod:
+        # Try smart context detection
+        detected_files = detect_context_files(prompt)
+        if detected_files:
+            print(format_context_summary(prompt, detected_files))
+            print("\n👻  Using smart context detection - processing detected files...")
+            process_context_files(prompt, detected_files, auto_apply, auto_yes, force_code)
+            return
     
     # Construct the full prompt with system instructions
     full_prompt = f"{SYSTEM_PROMPT}\n\nUser request: {processed_prompt}"
@@ -149,6 +159,60 @@ def process_multiple_files(prompt: str, auto_apply: bool, auto_yes: bool, force_
             apply_single_file_changes(ai_response, file_path, original_prompt, auto_yes, force_code)
 
 
+def process_context_files(prompt: str, detected_files: List[Path], auto_apply: bool, auto_yes: bool, force_code: bool = False) -> None:
+    """
+    Process files detected by smart context detection.
+    
+    Args:
+        prompt: The original user prompt
+        detected_files: List of detected relevant files
+        auto_apply: Whether to automatically apply code changes
+        auto_yes: Whether to automatically confirm changes
+        force_code: Whether to force code generation mode
+    """
+    print(f"👻  Processing {len(detected_files)} contextually relevant file(s)...")
+    
+    for i, file_path in enumerate(detected_files, 1):
+        print(f"\n📁  Processing file {i}/{len(detected_files)}: {file_path.name}")
+        print("-" * 50)
+        
+        # Create a focused prompt for this specific file
+        focused_prompt = f"{prompt} in the file @{file_path.name}"
+        
+        # Process this single file reference
+        processed_prompt, has_refs, _ = process_file_references(focused_prompt, force_code)
+        
+        # Construct the full prompt with system instructions
+        full_prompt = f"{SYSTEM_PROMPT}\n\nUser request: {processed_prompt}"
+        
+        try:
+            r = requests.post(
+                f"{BASE_URL}/api/generate",
+                json={"model": MODEL, "prompt": full_prompt, "stream": False},
+                timeout=180,
+            )
+            r.raise_for_status()
+        except requests.RequestException as exc:
+            print(f"❌  Cannot reach the spectral realm for {file_path.name}: {exc}")
+            continue
+
+        try:
+            ai_response = r.json().get("response")
+        except ValueError as exc:
+            print(f"❌  Invalid response for {file_path.name}: {exc}")
+            continue
+
+        if not ai_response:
+            print(f"❌  Empty response for {file_path.name}")
+            continue
+
+        print(ai_response)
+        
+        # Apply changes to this file
+        if auto_apply:
+            apply_single_file_changes(ai_response, file_path, prompt, auto_yes, force_code)
+
+
 def apply_single_file_changes(response: str, file_path: Path, prompt: str, auto_yes: bool, force_code: bool = False) -> None:
     """
     Apply changes to a single file from the AI response.
@@ -165,13 +229,56 @@ def apply_single_file_changes(response: str, file_path: Path, prompt: str, auto_
 
     code = extract_code_for_file(response, file_path.name)
     if code:
-        if show_diff_and_confirm(file_path, code, auto_yes):
-            file_path.write_text(code)
+        # Use intelligent merging instead of complete replacement
+        merged_code = intelligently_merge_changes(file_path, code, prompt)
+        if show_diff_and_confirm(file_path, merged_code, auto_yes):
+            file_path.write_text(merged_code)
             print(f"✅  GhostCoder manifested changes to {file_path}")
         else:
             print(f"❌  Changes to {file_path.name} were cancelled")
     else:
         print(f"👻  No spectral code detected for {file_path.name}")
+
+
+def intelligently_merge_changes(file_path: Path, new_code: str, prompt: str) -> str:
+    """
+    Intelligently merge new code into existing file without replacing everything.
+    
+    Args:
+        file_path: Path to the existing file
+        new_code: New code to add/modify
+        prompt: Original user prompt for context
+        
+    Returns:
+        Merged file content
+    """
+    if not file_path.exists():
+        return new_code
+    
+    try:
+        existing_content = file_path.read_text()
+    except Exception:
+        return new_code
+    
+    # If the new code is very small (likely just a function), add it to the end
+    if len(new_code.strip()) < 500 and "def " in new_code:
+        # Add new function at the end of the file
+        if existing_content.strip().endswith('\n'):
+            return existing_content + new_code
+        else:
+            return existing_content + '\n\n' + new_code
+    
+    # If the new code is larger, it might be a complete replacement
+    # But let's be conservative and only replace if it's clearly a complete file
+    if len(new_code) > len(existing_content) * 0.8:
+        # This looks like a complete replacement - be very conservative
+        print(f"⚠️   Large code block detected for {file_path.name}. This might replace the entire file.")
+        print(f"💡  Consider using explicit @{file_path.name} reference for safer modifications.")
+        return existing_content  # Don't replace, preserve existing
+    
+    # For medium-sized changes, try to merge intelligently
+    # This is a simple approach - in practice you might want more sophisticated merging
+    return existing_content + '\n\n# Added by GhostCoder:\n' + new_code
 
 
 def apply_code_changes(response: str, prompt: str, auto_yes: bool, force_code: bool = False) -> None:
